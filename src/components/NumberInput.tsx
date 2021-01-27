@@ -20,7 +20,7 @@ const NumberInput = ({
         if (!isNaN(val)) {
           setValue(val);
         } else {
-          setValue(0);
+          setValue(1);
         }
       }}
       {...props}

@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.colGroup:hover .xBtn{
+  right: 0px
+}
+
+.rowGroup:hover .xBtn{
+  bottom: 0px
+}

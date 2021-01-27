@@ -6,26 +6,26 @@ import NumberInput from "./NumberInput";
 export const RowIndicator = observer(() => {
   const store = useRootStore();
   const {
-    rowIndicators: { value },
+    rowIndicators: { value, size },
   } = store;
+
   return (
     <div
-      className="ml-auto w-full h-full grid bg-gray-700"
+      className="ml-auto w-full h-full bg-gray-700"
       style={{
-        width: 300,
+        width: size,
         position: "relative",
-        gridTemplateRows: Array(value.length).fill("1fr").join(" "),
       }}
     >
       <div
-        className="h-full border-t-2"
+        className="h-full grid"
         style={{ gridTemplateRows: Array(value.length).fill("1fr").join(" ") }}
       >
         {value.map((row, index) => (
           <Row index={index} row={row} key={index} />
         ))}
       </div>
-      <button
+      <div
         style={{
           position: "absolute",
           left: "50%",
@@ -33,11 +33,11 @@ export const RowIndicator = observer(() => {
           display: "block",
           transform: "translate(-50%,100%)",
         }}
-        className=" text-center bg-gray-600 border-t-2 h-8 w-full"
+        className=" text-center border-t bg-gray-600 cursor-pointer h-6 w-full"
         onClick={() => store.rowIndicators.addIndicator([1])}
       >
         添加行
-      </button>
+      </div>
     </div>
   );
 });
@@ -46,26 +46,59 @@ const Row: React.FC<{ index: number; row: number[] }> = observer(
   ({ row, index }) => {
     const store = useRootStore();
     return (
-      <div className="flex flex-row justify-between h-full border-t-2">
-        <div className="bg-gray-400 w-6 text-gray-600 text-center flex flex-col justify-center items-center">
-          <span style={{ wordBreak: "break-word" }}>行{index}</span>
-          <button
-            className="w-4 flex flex-row justify-center items-center h-4 rounded-full bg-gray-700 text-white"
+      <div
+        className="flex flex-row justify-between border-t h-full"
+        style={{ position: "relative" }}
+      >
+        <div className="bg-gray-400 w-4 h-full text-gray-600 text-center flex flex-col justify-center items-center">
+          <div
+            className="w-4 flex justify-center items-center bg-gray-300"
+            style={{ position: "absolute", top: 0, bottom: 0, left: -17 }}
+          >
+            {index + 1}
+          </div>
+          <div
+            className="flex flex-row w-full flex-1 justify-center items-center cursor-pointer text-white"
+            style={{ height: 5 }}
             onClick={() => store.rowIndicators.addIndicatorCell(index)}
           >
             +
-          </button>
+          </div>
+          <div
+            className="flex flex-row w-full flex-1 justify-center items-center cursor-pointer border-t text-white"
+            style={{ height: 5 }}
+            onClick={() => store.rowIndicators.deleteIndicator(index)}
+          >
+            -
+          </div>
         </div>
         <div className="flex">
-          {row.map((num, i) => (
-            <NumberInput
-              className="bg-transparent w-6 flex-1 text-center h-full"
+          {row.map((_, i) => (
+            <div
               key={i}
-              value={row[i]}
-              setValue={(val) =>
-                store.rowIndicators.setIndicatorCell(index, i, val)
-              }
-            />
+              style={{ width: 15 }}
+              className="h-full relative hover:bg-gray-400 rowGroup group overflow-hidden "
+            >
+              <NumberInput
+                className="bg-transparent flex-1 text-center group-hover:text-gray-800 w-full h-full"
+                value={row[i]}
+                setValue={(val) =>
+                  store.rowIndicators.setIndicatorCell(index, i, val)
+                }
+              />
+              <div
+                onClick={() => {
+                  if (row.length > 1) {
+                    store.rowIndicators.deleteIndicatorCell(index, i);
+                  }
+                }}
+                className={`${
+                  row.length > 1 && "xBtn"
+                } bg-red-900 w-full absolute right-0 -bottom-6 flex justify-center hover:bg-red-600 z-10 cursor-pointer items-center h-3`}
+              >
+                x
+              </div>
+            </div>
           ))}
         </div>
       </div>

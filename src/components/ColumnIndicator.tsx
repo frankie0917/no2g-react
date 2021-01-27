@@ -1,23 +1,44 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useRootStore } from "../store/store";
+import { Board } from "./Board";
 import NumberInput from "./NumberInput";
 
 export const ColumnIndicator = observer(() => {
   const store = useRootStore();
   const {
-    colIndicators: { value },
+    colIndicators: { value, size },
+    rowIndicators,
+    contentWidth,
   } = store;
+  const [preview, setPreview] = useState(false);
+
+  useEffect(() => {
+    console.log("preview", preview);
+  }, [preview]);
 
   return (
-    <div
-      className="flex flex-row"
-      style={{ height: 300, position: "relative" }}
-    >
+    <div className="flex flex-row relative" style={{ height: size }}>
       <div
-        className="ml-auto w-full h-full grid border-l-2 bg-gray-700"
+        style={{ width: rowIndicators.size }}
+        className="flex justify-center items-center relative"
+        onMouseEnter={() => setPreview(true)}
+        onMouseLeave={() => setPreview(false)}
+      >
+        预览
+        {preview && (
+          <div
+            className="absolute bottom-1/2 z-20 right-1/2 border-2 border-red-400"
+            style={{ transform: "translate(100%,100%)" }}
+          >
+            <Board mode="preview" />
+          </div>
+        )}
+      </div>
+      <div
+        className="h-full grid bg-gray-700"
         style={{
-          width: 700,
+          width: contentWidth,
           gridTemplateColumns: Array(value.length).fill("1fr").join(" "),
         }}
       >
@@ -25,19 +46,18 @@ export const ColumnIndicator = observer(() => {
           <Col value={v} index={i} key={i} />
         ))}
       </div>
-      <button
+      <div
         style={{
           position: "absolute",
           right: 0,
           top: "50%",
-          display: "block",
           transform: "translate(100%,-50%)",
         }}
-        className=" text-center bg-gray-600 border-l-2 w-8 h-full"
+        className="cursor-pointer text-center flex flex-row items-center justify-center bg-gray-600 border-l w-6 h-full"
         onClick={() => store.colIndicators.addIndicator([1])}
       >
         添加列
-      </button>
+      </div>
     </div>
   );
 });
@@ -46,26 +66,60 @@ const Col: React.FC<{ value: number[]; index: number }> = observer(
   ({ value, index }) => {
     const store = useRootStore();
     return (
-      <div className="border-r flex flex-col">
-        <div className="bg-gray-400 text-gray-600 text-center flex flex-row justify-center items-center">
-          <span>列:{index}</span>
-          <button
-            className="w-4 ml-2 flex flex-row justify-center items-center h-4 rounded-full bg-gray-700 text-white"
+      <div className="border-l flex flex-col" style={{ position: "relative" }}>
+        <div className="bg-gray-400 text-gray-600 text-center flex flex-row items-center">
+          <div
+            className="h-4 flex justify-center items-center bg-gray-300"
+            style={{
+              position: "absolute",
+              left: 0,
+              right: 0,
+              top: -17,
+            }}
+          >
+            {index}
+          </div>
+          <div
+            className="flex flex-row flex-1 justify-center items-center cursor-pointer h-full text-white"
             onClick={() => store.colIndicators.addIndicatorCell(index)}
           >
             +
-          </button>
+          </div>
+          <div
+            className="flex flex-row flex-1 justify-center items-center cursor-pointer h-full border-l text-white"
+            onClick={() => store.colIndicators.deleteIndicator(index)}
+          >
+            -
+          </div>
         </div>
         <div className="flex flex-col justify-end mt-auto">
-          {value.map((num, i) => (
-            <NumberInput
+          {value.map((_, i) => (
+            <div
               key={i}
-              value={store.colIndicators.value[index][i]}
-              setValue={(val) =>
-                store.colIndicators.setIndicatorCell(index, i, val)
-              }
-              className="bg-transparent text-center w-full"
-            />
+              style={{ height: 15 }}
+              className="flex flex-row hover:bg-gray-400 group overflow-hidden relative colGroup"
+            >
+              <NumberInput
+                key={i}
+                value={store.colIndicators.value[index][i]}
+                setValue={(val) =>
+                  store.colIndicators.setIndicatorCell(index, i, val)
+                }
+                className="bg-transparent text-center group-hover:text-gray-800 w-full h-full"
+              />
+              <div
+                onClick={() => {
+                  if (value.length > 1) {
+                    store.colIndicators.deleteIndicatorCell(index, i);
+                  }
+                }}
+                className={`${
+                  value.length > 1 && "xBtn"
+                } bg-red-900 w-3 absolute -right-6 flex justify-center hover:bg-red-600 z-10 cursor-pointer items-center h-full`}
+              >
+                x
+              </div>
+            </div>
           ))}
         </div>
       </div>
