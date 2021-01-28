@@ -65,7 +65,6 @@ const CellItem: React.FC<{
         mode === "normal" && "border"
       } h-full w-full cursor-pointer`}
       onClick={() => {
-        console.log("mode", mode);
         store.setCurrentCell(
           rowIndex,
           cellIndex,

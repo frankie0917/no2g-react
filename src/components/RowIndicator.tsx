@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React from "react";
+import React, { useMemo } from "react";
 import { useRootStore } from "../store/store";
 import NumberInput from "./NumberInput";
 
@@ -45,9 +45,15 @@ export const RowIndicator = observer(() => {
 const Row: React.FC<{ index: number; row: number[] }> = observer(
   ({ row, index }) => {
     const store = useRootStore();
+    const current = store.rowValueToIndicator[index];
+    const isValid = useMemo(() => {
+      return JSON.stringify(current) === JSON.stringify(row);
+    }, [current, row]);
     return (
       <div
-        className="flex flex-row justify-between border-t h-full"
+        className={`${
+          isValid && "bg-gray-500"
+        } flex flex-row justify-between border-t h-full`}
         style={{ position: "relative" }}
       >
         <div className="bg-gray-400 w-4 h-full text-gray-600 text-center flex flex-col justify-center items-center">

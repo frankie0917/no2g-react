@@ -1,5 +1,5 @@
 import { observer } from "mobx-react-lite";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useRootStore } from "../store/store";
 import { Board } from "./Board";
 import NumberInput from "./NumberInput";
@@ -12,10 +12,6 @@ export const ColumnIndicator = observer(() => {
     contentWidth,
   } = store;
   const [preview, setPreview] = useState(false);
-
-  useEffect(() => {
-    console.log("preview", preview);
-  }, [preview]);
 
   return (
     <div className="flex flex-row relative" style={{ height: size }}>
@@ -65,8 +61,15 @@ export const ColumnIndicator = observer(() => {
 const Col: React.FC<{ value: number[]; index: number }> = observer(
   ({ value, index }) => {
     const store = useRootStore();
+    const current = store.colValueToIndicator[index];
+    const isValid = useMemo(() => {
+      return JSON.stringify(current) === JSON.stringify(value);
+    }, [current, value]);
     return (
-      <div className="border-l flex flex-col" style={{ position: "relative" }}>
+      <div
+        className={`${isValid && "bg-gray-500"} border-l flex flex-col`}
+        style={{ position: "relative" }}
+      >
         <div className="bg-gray-400 text-gray-600 text-center flex flex-row items-center">
           <div
             className="h-4 flex justify-center items-center bg-gray-300"
@@ -77,7 +80,7 @@ const Col: React.FC<{ value: number[]; index: number }> = observer(
               top: -17,
             }}
           >
-            {index}
+            {index + 1}
           </div>
           <div
             className="flex flex-row flex-1 justify-center items-center cursor-pointer h-full text-white"

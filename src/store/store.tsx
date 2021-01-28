@@ -84,6 +84,65 @@ export class Indicator {
   }
 }
 
+function boardToIndicators(board: Board) {
+  let colIndicator: number[][] = [];
+  let rowIndicator: number[][] = [];
+
+  for (const [rowIndex, row] of board.entries()) {
+    for (const [cellIndex, cell] of row.entries()) {
+      if (!colIndicator[cellIndex]) {
+        colIndicator[cellIndex] = [];
+      }
+
+      if (!rowIndicator[rowIndex]) {
+        rowIndicator[rowIndex] = [];
+      }
+
+      const currentCol = colIndicator[cellIndex];
+      const currentRow = rowIndicator[rowIndex];
+
+      if (cell === "O") {
+        if (rowIndex === 0) {
+          currentCol.push(1);
+        }
+
+        if (rowIndex > 0) {
+          currentCol[currentCol.length - 1] += 1;
+        }
+
+        if (cellIndex === 0) {
+          currentRow.push(1);
+        }
+
+        if (cellIndex > 0) {
+          currentRow[currentRow.length - 1] += 1;
+        }
+      } else {
+        currentCol.push(0);
+        currentRow.push(0);
+      }
+    }
+  }
+
+  for (const [colIndex, currentCol] of colIndicator.entries()) {
+    colIndicator[colIndex] = currentCol.filter((it) => it !== 0);
+    if (colIndicator[colIndex].length === 0) {
+      colIndicator[colIndex].push(0);
+    }
+  }
+
+  for (const [rowIndex, currentRow] of rowIndicator.entries()) {
+    rowIndicator[rowIndex] = currentRow.filter((it) => it !== 0);
+    if (rowIndicator[rowIndex].length === 0) {
+      rowIndicator[rowIndex].push(0);
+    }
+  }
+  return {
+    rowIndicator,
+    colIndicator,
+  };
+}
+
 export class RootStore {
   constructor() {
     makeAutoObservable(this);
@@ -97,6 +156,9 @@ export class RootStore {
   success: Board = [];
   colIndicators: Indicator = new Indicator(this, "col");
   rowIndicators: Indicator = new Indicator(this, "row");
+
+  rowValueToIndicator: number[][] = [];
+  colValueToIndicator: number[][] = [];
 
   addRowToCurrent(cell?: Cell) {
     this.currentRows++;
@@ -125,6 +187,9 @@ export class RootStore {
 
   setCurrentCell(rowIndex: number, colIndex: number, value: Cell) {
     this.current[rowIndex][colIndex] = value;
+    const { colIndicator, rowIndicator } = boardToIndicators(this.current);
+    this.rowValueToIndicator = rowIndicator;
+    this.colValueToIndicator = colIndicator;
   }
 }
 
