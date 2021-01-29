@@ -1,3 +1,12 @@
+# IMPORTANT
+
+currently doesnt work for complex sizes (row/col more than 10) due to maximun stack size exceeded error.
+this error is caused by DFS and backtracking method
+
+# todo
+look for more effecient method
+
+# Usage
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
